@@ -53,7 +53,7 @@ export async function doAttendanceForAccount(token: string, options: Options) {
           )
         }
         if (options.withWeChatWork) {
-          await messagePusher(
+          await wechatworkBot(
             options.withWeChatWork,
             `【森空岛每日签到】`,
             messages.join('\n\n'),
