@@ -2,7 +2,7 @@ name: attendance
 
 on:
   schedule:
-    - cron: "0 16 * * *"
+    - cron: '0 16 * * *'
   workflow_dispatch:
 
 jobs:
@@ -39,7 +39,7 @@ jobs:
         run: pnpm install
 
       - name: Run daily attendance
-        run: npm run attendance -- --test-notifications
+        run: pnpm attendance
         env:
           SKLAND_TOKEN: ${{ secrets.SKLAND_TOKEN }}
           SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_SENDKEY }}
