@@ -163,3 +163,106 @@ export async function doAttendanceForAccount(token: string, options: Options) {
   // 但确保通知已经发送
   return
 }
+
+// 新增函数用于测试通知功能
+export async function testNotifications(options: Options) {
+  console.log("开始测试通知功能...")
+  
+  const createCombinePushMessage = () => {
+    const messages: string[] = []
+    let hasError = false
+    const logger = (message: string, error?: boolean) => {
+      messages.push(message)
+      console[error ? 'error' : 'log'](message)
+      if (error && !hasError)
+        hasError = true
+    }
+    const push = async () => {
+      let successCount = 0
+      let failCount = 0
+      
+      try {
+        if (options.withServerChan) {
+          console.log("测试 Server酱 通知...")
+          await serverChan(
+            options.withServerChan,
+            `【测试】森空岛签到通知测试`,
+            messages.join('\n\n'),
+          )
+          console.log("✅ Server酱 通知发送成功")
+          successCount++
+        }
+      } catch (error) {
+        console.error("❌ Server酱 通知发送失败:", error)
+        failCount++
+      }
+      
+      try {
+        if (options.withBark) {
+          console.log("测试 Bark 通知...")
+          await bark(
+            options.withBark,
+            `【测试】森空岛签到通知测试`,
+            messages.join('\n\n'),
+          )
+          console.log("✅ Bark 通知发送成功")
+          successCount++
+        }
+      } catch (error) {
+        console.error("❌ Bark 通知发送失败:", error)
+        failCount++
+      }
+      
+      try {
+        if (options.withMessagePusher) {
+          console.log("测试 MessagePusher 通知...")
+          await messagePusher(
+            options.withMessagePusher,
+            `【测试】森空岛签到通知测试`,
+            messages.join('\n\n'),
+          )
+          console.log("✅ MessagePusher 通知发送成功")
+          successCount++
+        }
+      } catch (error) {
+        console.error("❌ MessagePusher 通知发送失败:", error)
+        failCount++
+      }
+      
+      try {
+        if (options.withWeChatWork) {
+          console.log("测试 企业微信 通知...")
+          await wechatworkBot(
+            options.withWeChatWork,
+            `【测试】森空岛签到通知测试`,
+            messages.join('\n\n'),
+          )
+          console.log("✅ 企业微信 通知发送成功")
+          successCount++
+        }
+      } catch (error) {
+        console.error("❌ 企业微信 通知发送失败:", error)
+        failCount++
+      }
+      
+      console.log(`\n通知测试完成! 成功: ${successCount}, 失败: ${failCount}`)
+      return { successCount, failCount }
+    }
+    
+    const add = (message: string) => {
+      messages.push(message)
+    }
+    
+    return [logger, push, add] as const
+  }
+  
+  const [logger, push, add] = createCombinePushMessage()
+  
+  // 添加测试消息
+  add("## 这是一条测试通知")
+  add("如果您看到这条消息，说明通知功能运行正常！")
+  add(`发送时间：${new Date().toLocaleString()}`)
+  
+  // 发送测试通知
+  await push()
+}
