@@ -55,9 +55,6 @@ export async function doAttendanceForAccount(token: string, options: Options) {
             messages.join('\n\n'),
           )
         }
-        // 不再强制退出程序
-        // if (hasError)
-        //   process.exit(1)
       }
     const add = (message: string) => {
       messages.push(message)
@@ -68,6 +65,7 @@ export async function doAttendanceForAccount(token: string, options: Options) {
   const [combineMessage, excutePushMessage, addMessage] = createCombinePushMessage()
 
   addMessage('## 明日方舟签到')
+  let shouldContinue = true // 添加标志控制流程
 
   try {
     const { code } = await auth(token)
@@ -76,8 +74,10 @@ export async function doAttendanceForAccount(token: string, options: Options) {
 
     let successAttendance = 0
     const characterList = list.map(i => i.bindingList).flat()
-    const maxRetries = parseInt(process.env.MAX_RETRIES, 10) || 3 // 添加最大重试次数
+    const maxRetries = parseInt(process.env.MAX_RETRIES, 10) || 3
     await Promise.all(characterList.map(async (character) => {
+      if (!shouldContinue) return // 如果设置了终止标志则跳过处理
+
       console.log(`将签到第${successAttendance + 1}个角色`)
       let retries = 0 // 初始化重试计数器
       while (retries < maxRetries) {
@@ -111,10 +111,12 @@ export async function doAttendanceForAccount(token: string, options: Options) {
           }
           else {
             combineMessage(`签到过程中出现未知错误: ${error.message}`, true)
-            console.error('发生未知错误，工作流终止。')
+            console.error('发生未知错误，工作流中断。')
             retries++ // 增加重试计数器
             if (retries >= maxRetries) {
-              process.exit(1) // 达到最大重试次数，终止工作流
+              combineMessage(`角色 ${successAttendance + 1} 已达到最大重试次数 ${maxRetries}，跳过此角色`, true)
+              shouldContinue = false // 设置终止标志
+              break // 但不再直接退出，而是跳出重试循环
             }
           }
         }
@@ -150,5 +152,14 @@ export async function doAttendanceForAccount(token: string, options: Options) {
   }
 
   // 确保通知会发送，即使发生错误
-  await excutePushMessage()
+  try {
+    await excutePushMessage()
+    console.log("通知发送完成")
+  } catch (err) {
+    console.error("发送通知时出错:", err)
+  }
+
+  // 如果需要在所有操作完成后退出程序，可以放在这里
+  // 但确保通知已经发送
+  return
 }
