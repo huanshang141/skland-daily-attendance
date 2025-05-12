@@ -18,7 +18,7 @@ if (process.argv.includes('--test-notifications')) {
     withServerChan: process.env.SERVER_CHAN_KEY || false,
     withBark: process.env.BARK_URL || false,
     withMessagePusher: process.env.MESSAGE_PUSHER_URL || false,
-    withWeChatWork: process.env.WECHAT_WORK_URL || false,
+    withWeChatWork: process.env.WECHATWORK_URL || false,
   }
   
   // 执行通知测试
