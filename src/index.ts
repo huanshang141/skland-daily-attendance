@@ -1,7 +1,7 @@
 import process from 'node:process'
 import { setTimeout } from 'node:timers/promises'
 import { attendance, auth, getBinding, signIn } from './api'
-import { bark, serverChan, messagePusher } from './notifications'
+import { bark, serverChan, messagePusher,wechatworkBot } from './notifications'
 import { getPrivacyName } from './utils'
 
 interface Options {
@@ -11,6 +11,8 @@ interface Options {
   withBark?: false | string
   /** 消息推送功能的启用，false 或者 message-pusher 的 WebHook URL */
   withMessagePusher?: false | string
+  /** 企业微信推送功能的启用，false 或者企业微信的 WebHook URL */
+  withWeChatWork?: false | string
 }
 
 export async function doAttendanceForAccount(token: string, options: Options) {
@@ -46,6 +48,13 @@ export async function doAttendanceForAccount(token: string, options: Options) {
         if (options.withMessagePusher) {
           await messagePusher(
             options.withMessagePusher,
+            `【森空岛每日签到】`,
+            messages.join('\n\n'),
+          )
+        }
+        if (options.withWeChatWork) {
+          await messagePusher(
+            options.withWeChatWork,
             `【森空岛每日签到】`,
             messages.join('\n\n'),
           )

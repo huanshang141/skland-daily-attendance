@@ -9,6 +9,7 @@ const accounts = Array.from(process.env.SKLAND_TOKEN.split(','))
 const withServerChan = process.env.SERVERCHAN_SENDKEY
 const withBark = process.env.BARK_URL
 const withMessagePusher = process.env.MESSAGE_PUSHER_URL
+const withWeChatWork = process.env.WECHATWORK_URL
 
 // eslint-disable-next-line antfu/no-top-level-await
-await Promise.all(accounts.map(token => doAttendanceForAccount(token, { withServerChan, withBark, withMessagePusher })))
+await Promise.all(accounts.map(token => doAttendanceForAccount(token, { withServerChan, withBark, withMessagePusher, withWeChatWork })))
