@@ -55,9 +55,9 @@ export async function doAttendanceForAccount(token: string, options: Options) {
             messages.join('\n\n'),
           )
         }
-        // quit with error
-        if (hasError)
-          process.exit(1)
+        // 不再强制退出程序
+        // if (hasError)
+        //   process.exit(1)
       }
     const add = (message: string) => {
       messages.push(message)
@@ -132,6 +132,8 @@ export async function doAttendanceForAccount(token: string, options: Options) {
     if (error.cause) {
       if (error.cause.code === 'ETIMEDOUT' || error.cause.code === 'ECONNABORTED' || error.cause.code === 'ECONNRESET') {
         errorMessage = `森空岛签到发生网络超时错误: ${error.cause.code} - ${error.cause.syscall || ''}`;
+      } else if (error.cause.code === 'UND_ERR_CONNECT_TIMEOUT') {
+        errorMessage = `森空岛签到发生连接超时错误: ${error.cause.code}`;
       } else if (error.cause.message && error.cause.message.includes('timeout')) {
         errorMessage = `森空岛签到发生网络超时错误: ${error.cause.message}`;
       } else if (error.cause.cause) {
